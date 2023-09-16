@@ -154,20 +154,18 @@ var data;
       // floatingbutton.textContent = "Processing...";
       console.log("Clicked");
       setTimeout(() => {
-        // const imgelement = document.getElementById("food-image");
-        // const canvas = document.createElement('canvas');
-        // const context = canvas.getContext('2d');
-        // canvas.width = videoElement.videoWidth;
-        // canvas.height = videoElement.videoHeight;
+        const imgelement = document.getElementById("food-image");
+        const canvas = document.createElement('canvas');
+        const context = canvas.getContext('2d');
+        canvas.width = videoElement.videoWidth;
+        canvas.height = videoElement.videoHeight;
         
-        // // // Draw the current video frame onto the canvas
-        // context.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
+        // // Draw the current video frame onto the canvas
+        context.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
         
-        // // // Convert the canvas content to a data URL (JPG image)
-        // //const dataUrl = canvas.toDataURL('image/jpeg');
-        // // console.log(dataUrl);
-        // // Create an <img> element to display the captured image                    
-        // imgelement.src= "https://thumbs.dreamstime.com/b/red-apple-isolated-clipping-path-19130134.jpg";
+        // // Convert the canvas content to a data URL (JPG image)
+        const dataUrl = canvas.toDataURL('image/jpeg');
+        imgelement.src = dataUrl;                    
         callTfliteModel(tfliteModel);
       });
     })
@@ -176,7 +174,7 @@ var data;
 document.addEventListener("DOMContentLoaded", function() {
     document.getElementById("open-button").addEventListener("click", async function() {
         if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-            await navigator.mediaDevices.getUserMedia({ video: true })
+            await navigator.mediaDevices.getUserMedia({ video: {facingMode: "environment"}})
             .then(function (stream) {
                 videoElement = document.getElementById('camera-feed'); // Assign the videoElement here
                 videoElement.srcObject = stream;
@@ -205,7 +203,7 @@ document.addEventListener("DOMContentLoaded", function() {
 });
 
 function search_for_food(name, usemapping=true) {
-  const mapping = { "Apple": "Apples", "Banana":"Bananas", "Bean":"Beans And Peas", "Bitter_Gourd":"Melons", "Bottle_Gourd":"Melons", "Brinjal": "Apple", "Broccoli": "Broccoli And Broccoli Raab Rapini", "Cabbage":"Cabbage", "Capsicum":"Pepper", "Carrot":"Carrots Parsnips", "Cauliflower":"Cauliflower", "Cucumber":"Cucumbers", "Guava":"Guava", "Lime":"Citrus Fruit", "Orange": "Citrus Fruit", "Papaya":"Papaya Mango Feijoa Passionfruit Casaha Melon", "Pomegranate":"Pomegranate", "Potato":"Potatoes", "Pumpkin":"Pumpkins", "Radish":"Radishes", "Tomato":"Tomatoes"}
+  const mapping = { "Apple": "Apples", "Banana":"Bananas", "Bean":"Beans and peas", "Bitter_Gourd":"Melons", "Bottle_Gourd":"Melons", "Brinjal": "Apple", "Broccoli": "Broccoli and broccoli raab (rapini)", "Cabbage":"Cabbage", "Capsicum":"Pepper", "Carrot":"Carrots Parsnips", "Cauliflower":"Cauliflower", "Cucumber":"Cucumbers", "Guava":"Guava", "Lime":"Citrus Fruit", "Orange": "Citrus Fruit", "Papaya":"Papaya Mango Feijoa Passionfruit Casaha Melon", "Pomegranate":"Pomegranate", "Potato":"Potatoes", "Pumpkin":"Pumpkins", "Radish":"Radishes", "Tomato":"Tomatoes"}
   const items = data['sheets'][2]['data'];
   name = name.replace(/\s+$/, '');
 
