@@ -76,13 +76,27 @@
         border-radius: 10%;
         cursor: pointer;
     }
-    #shelf-life {
-        color: brown;
+    .pantry {
+        color: orangered;
         font-style: bold;
     }
-    #freeze-life {
+    .refrigerate {
         color: darkcyan;
         font-style: bold;
+    }
+    .freeze {
+        color: darkblue;
+        font-style: bold;
+    }
+    .pantry_tips {
+        color: brown;
+        font-size: 1rem;
+        background-color: lightyellow;
+    }
+    .refrigerate_tips {
+        color: black;
+        font-size: 1rem;
+        background-color: lightblue;
     }
     ul {
       list-style-type: none;
@@ -122,15 +136,23 @@
     <div class="row">
       <div class="col-md-6">
         <div class="card">
-          <img  id="food-image" src="" alt="Food image">
+          <img  id="food-image" alt="Food image">
           <div class="card-body">
-            <h5 id="food-name" class="card-title">Shelf Life</h5>
-            <p id="shelf-life" class="card-text">Shelf life.</p>
-            <p id="freeze-life" class="card-text">Shelf life if frozen.</p>
-            <p id="storage" class="card-text">This food should be stored in. </p>
+            <h5 id="food-name" class="card-title">Food</h5>
+            <div id="info">
+            </div>
 
-          </div>
-        </div>
+            <p id="storage" class="card-text">This food stored in:
+              <select id="storage-dropdown">
+                <option value="Refrigerator">Refrigerator</option>
+                <option value="Freezer">Freezer</option>
+                <option value="Pantry">Shelf</option>
+                <option value="new">Add new...</option>
+              </select>
+            </p>
+          
+            <button id="save-button" class="btn btn-primary mt-3">Save</button>
+          </div>        </div>
       </div>
       <div class="col-md-6">
         <div class="video-container">
@@ -143,7 +165,7 @@
     <button id="stop-button" class="btn btn-primary">Stop Camera</button>
     <input id="mobile-camera" type="file" name="image" accept="image/*" capture="environment">
   </div>
-  <script src="/index3.js" type="text/javascript"></script>
+  <script src="index3.js" type="text/javascript"></script>
 </body>
 
 </html>

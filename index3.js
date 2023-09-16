@@ -6,7 +6,7 @@ var data;
      
     // Load the model.
     const tfliteModel = await tf.loadGraphModel(
-      "jsmodelv3/model.json",
+      "jsmodelv4/model.json",
     );
     // Create an XMLHttpRequest object
     const xhr = new XMLHttpRequest();
@@ -62,7 +62,7 @@ var data;
       resizeHeight: 224,
     });
     let predictimg = await tfwebcam.capture();
-    predictimg = predictimg.expandDims(0);
+    predictimg = predictimg.expandDims(0).div(127.5).sub(1);
 
     const predict2 = tfliteModel.predict(predictimg);
     // let predictions = outputTensor.dataSync();
@@ -88,21 +88,42 @@ var data;
     // console.log(labels[indexOfLargest], predictions[indexOfLargest]);
     //relevant_data = data['sheets'][2]['data'][286];
     // console.log(relevant_data);
-    console.log(predict2.arraySync()[0]);
     const predictionArray = predict2.arraySync()[0]; // Convert predictions to a JavaScript array
     const topPredictionIndex = predictionArray.indexOf(Math.max(...predictionArray)); // Find the index of the class with the highest probability
     console.log(labels[topPredictionIndex], predictionArray[topPredictionIndex]);
-    console.log(predictionArray);
+    const results = search_for_food(labels[topPredictionIndex], true);
 
+    const foodname = document.getElementById("food-name");
+    foodname.innerHTML = labels[topPredictionIndex];
+    const infobox = document.getElementById("info");
+    infobox.innerHTML = "";
 
-    // const foodname = document.getElementById("food-name");
-    // const shelflife = document.getElementById("shelf-life");
-    // const storage = document.getElementById("storage");
-    // const freezelife = document.getElementById("freeze-life");
-    // storage.innerHTML = relevant_data[8]["Pantry_tips"];
-    // foodname.innerHTML = relevant_data[2]["Name"];
-    // shelflife.innerHTML = "The shelf life of this food is <strong>7</strong> days.";
-    // freezelife.innerHTML = "This food can be stored 2 months if frozen.";
+    const headings = {
+      "pantry": "The shelf life is ", 
+      "refrigerate": "Can be refrigerated for ", 
+      "freeze":"Can be stored frozen for "
+    };
+    for (const typename of ["pantry", "refrigerate", "freeze"]) {
+      if (results[typename][1] !== "1") {
+        const elem = document.createElement("p");
+        elem.className = typename + " " + "card-text";
+        elem.innerHTML = headings[typename] + results[typename][0] + " " + results[typename][1];
+        infobox.appendChild(elem);
+      }
+    }
+    for (const typename of ["pantry_tips", "refrigerate_tips", "freeze_tips"]) {
+      if (results[typename]) {
+        const elem = document.createElement("p");
+        elem.className = typename +  " " + "card-text";
+        elem.innerHTML = "Tip: ";
+        elem.innerHTML += results[typename];
+        infobox.appendChild(elem);
+      }
+    }
+
+    //        const tipname = typename + "_tips";
+    //if (results[tipname])elem.innerHTML += "<br>"+   results[tipname];
+
     // Process and draw the result on the canvas.
     //
     // // De-normalize.
@@ -151,10 +172,6 @@ var data;
       });
     })
   }
-
-  function requestmobilecamera() {
-    
-  }
   
 document.addEventListener("DOMContentLoaded", function() {
     document.getElementById("open-button").addEventListener("click", async function() {
@@ -183,8 +200,66 @@ document.addEventListener("DOMContentLoaded", function() {
         videoElement.srcObject = null; // Remove the video stream from the video element
         document.getElementById("floating-button").style.display = 'none';
       }
-  });
+    });
     start();
 });
 
-  
+function search_for_food(name, usemapping=true) {
+  const mapping = { "Apple": "Apples", "Banana":"Bananas", "Bean":"Beans And Peas", "Bitter_Gourd":"Melons", "Bottle_Gourd":"Melons", "Brinjal": "Apple", "Broccoli": "Broccoli And Broccoli Raab Rapini", "Cabbage":"Cabbage", "Capsicum":"Pepper", "Carrot":"Carrots Parsnips", "Cauliflower":"Cauliflower", "Cucumber":"Cucumbers", "Guava":"Guava", "Lime":"Citrus Fruit", "Orange": "Citrus Fruit", "Papaya":"Papaya Mango Feijoa Passionfruit Casaha Melon", "Pomegranate":"Pomegranate", "Potato":"Potatoes", "Pumpkin":"Pumpkins", "Radish":"Radishes", "Tomato":"Tomatoes"}
+  const items = data['sheets'][2]['data'];
+  name = name.replace(/\s+$/, '');
+
+  let results = new Object({
+    "pantry": [0, "1"],
+    "refrigerate": [0, "1"],
+    "freeze": [0, "1"],
+  });
+
+  if (usemapping) {
+    for (let [index, item] of items.entries()) {
+      if (item[2]['Name'] === mapping[name]) {
+        const focus = item;
+        console.log(focus);
+        for (const obj of focus) {
+          const key = Object.keys(obj)[0]; // Get the key
+          const value = obj[key]; // Get the value
+      
+            if (key.includes("Pantry_Max")) {
+              if (value) results["pantry"][0] = (value);
+            }
+            if (key.includes("Refrigerate_Max")) {
+              if (value) results["refrigerate"][0] = (value);
+            }
+            if (key.includes("Freeze_Max")) {
+              if (value) results["freeze"][0] = (value);
+            }
+            if (key.includes("Pantry_Metric")) {
+              if (value) results["pantry"][1] = (value);
+            }
+            if (key.includes("Refrigerate_Metric")) {
+              if (value) results["refrigerate"][1] = (value);
+            }
+            if (key.includes("Freeze_Metric")) {
+              if (value) results["freeze"][1] = (value);
+            }
+
+            // tips
+            if (key.includes("Pantry_tips")) {
+              if (value) results["pantry_tips"] = value;
+            }
+            if (key.includes("Refrigerate_tips")) {
+              if (value) results["refrigerate_tips"] = value;
+            }
+            if (key.includes("Freeze_tips")) {
+              if (value) results["freeze_tips"] = value;
+            }
+        }
+      }
+    }
+  }
+  else {
+    console.warn("Unsupported operation: usemapping == false");
+  }
+  console.log(results);
+  return results;
+}
