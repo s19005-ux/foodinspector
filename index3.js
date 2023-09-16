@@ -261,3 +261,11 @@ function search_for_food(name, usemapping=true) {
   console.log(results);
   return results;
 }
+
+function redirectConsoleToHTML(message) {
+  const consoleOutputElement = document.getElementById("console-output");
+  consoleOutputElement.innerHTML += `<p class="console-output">${message}</p>`;
+}
+
+// Redirect all console messages to the function
+console.log = redirectConsoleToHTML;
