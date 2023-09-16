@@ -60,6 +60,7 @@ var data;
     const tfwebcam = await tf.data.webcam(videoElement, {
       resizeWidth: 224,
       resizeHeight: 224,
+      facingMode: 'environment'
     });
     let predictimg = await tfwebcam.capture();
     predictimg = predictimg.expandDims(0).div(127.5).sub(1);
@@ -269,3 +270,6 @@ function redirectConsoleToHTML(message) {
 
 // Redirect all console messages to the function
 console.log = redirectConsoleToHTML;
+console.warn = redirectConsoleToHTML;
+console.error = redirectConsoleToHTML;
+console.debug = redirectConsoleToHTML;
